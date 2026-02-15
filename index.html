@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000">
+    <title>HANG LOOSE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        html, body, #root {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #000;
+            color: #fff;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: #000;
+        }
+
+        .top-bar {
+            background: #000;
+            border-bottom: 1px solid #1a1a1a;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .top-bar-title {
+            flex: 1;
+            text-align: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 28px;
+            letter-spacing: 4px;
+            color: #fff;
+        }
+
+        .top-bar-settings {
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 0 4px;
+            line-height: 1;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .top-bar-settings:active {
+            color: #fff;
+        }
+
+        .top-bar-spacer {
+            width: 30px;
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* START SCREEN */
+        .start-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 32px;
+            padding: 40px 20px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .start-text {
+            font-size: 15px;
+            font-weight: 400;
+            color: #888;
+            letter-spacing: 1px;
+        }
+
+        .start-btn {
+            padding: 20px 60px;
+            background: #fff;
+            border: none;
+            color: #000;
+            font-family: 'Inter', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            border-radius: 0;
+            cursor: pointer;
+            transition: opacity 0.15s;
+            -webkit-appearance: none;
+            appearance: none;
+            min-width: 200px;
+        }
+
+        .start-btn:active {
+            opacity: 0.8;
+        }
+
+        .last-result-btn {
+            background: none;
+            border: none;
+            color: #777;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            padding: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .last-result-btn:active {
+            color: #aaa;
+        }
+
+        /* COUNTDOWN SCREEN */
+        .countdown-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            gap: 40px;
+            background: #C0392B;
+            padding: 0 20px;
+        }
+
+        .abort-btn {
+            padding: 14px 40px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: rgba(255,255,255,0.5);
+            border-radius: 0;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .abort-btn:active {
+            border-color: rgba(255,255,255,0.6);
+            color: rgba(255,255,255,0.8);
+        }
+
+        .countdown-instruction {
+            font-size: 22px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.75);
+            letter-spacing: 1px;
+        }
+
+        .countdown-number {
+            font-size: 22vw;
+            font-weight: 500;
+            color: #fff;
+            line-height: 1;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .countdown-progress-track {
+            width: 100%;
+            height: 36px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 0;
+            overflow: hidden;
+        }
+
+        .countdown-progress-fill {
+            height: 100%;
+            background: #fff;
+            border-radius: 0;
+            transition: width 0.05s linear;
+            margin: 0 auto;
+        }
+
+        /* HANG SCREEN */
+        .hang-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            padding: 20px;
+            gap: 40px;
+        }
+
+        .hang-big-number {
+            font-size: 22vw;
+            font-weight: 700;
+            color: #FFC107;
+            line-height: 1;
+            font-family: 'DM Mono', monospace;
+        }
+
+
+        .hang-small-number {
+            font-size: 16vw;
+            font-weight: 400;
+            color: #fff;
+            line-height: 1;
+            font-family: 'DM Mono', monospace;
+            width: 100%;
+            text-align: center;
+        }
+
+        .hang-progress-track {
+            width: 100%;
+            height: 36px;
+            background: #333;
+            border-radius: 0;
+            overflow: hidden;
+        }
+
+        .hang-progress-fill {
+            height: 100%;
+            background: #FFC107;
+            border-radius: 0;
+            transition: width 0.05s linear;
+        }
+
+        .hang-instruction {
+            font-size: 15px;
+            font-weight: 400;
+            color: #555;
+            letter-spacing: 0.5px;
+        }
+
+        /* RESULT SCREEN */
+        .result-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            gap: 16px;
+        }
+
+        .result-label {
+            font-size: 18px;
+            font-weight: 500;
+            color: #999;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .result-option {
+            width: 100%;
+            padding: 28px 20px;
+            border: none;
+            border-radius: 0;
+            font-family: 'DM Mono', monospace;
+            font-weight: 700;
+            line-height: 1;
+            cursor: pointer;
+            -webkit-appearance: none;
+            appearance: none;
+            transition: opacity 0.15s;
+        }
+
+        .result-option:active {
+            opacity: 0.8;
+        }
+
+        .result-option-primary {
+            font-size: 22vw;
+            background: #fff;
+            color: #000;
+        }
+
+        .result-option-secondary {
+            font-size: 16vw;
+            background: #111;
+            color: #555;
+        }
+
+        .result-exact {
+            font-size: 7vw;
+            font-family: 'DM Mono', monospace;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        /* SHARE SCREEN */
+        .share-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .share-screen:active {
+            opacity: 0.85;
+        }
+
+        .share-preview-box {
+            background: #111;
+            border: 1px solid #333;
+            padding: 24px 28px;
+            width: 100%;
+        }
+
+        .share-preview {
+            font-size: 5.5vw;
+            font-family: 'DM Mono', monospace;
+            color: #fff;
+            white-space: pre;
+            line-height: 1.6;
+            text-align: left;
+        }
+
+        .share-hint {
+            font-size: 13px;
+            color: #777;
+            letter-spacing: 0.5px;
+        }
+
+        .share-hint.copied {
+            color: #fff;
+        }
+
+        /* SETTINGS MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal {
+            background: #0a0a0a;
+            border: 1px solid #222;
+            border-radius: 0;
+            padding: 30px 24px;
+            max-width: 300px;
+            width: 100%;
+        }
+
+        .modal-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 22px;
+            letter-spacing: 3px;
+            color: #fff;
+            margin-bottom: 24px;
+        }
+
+        .modal-group {
+            margin-bottom: 24px;
+        }
+
+        .modal-label {
+            font-size: 13px;
+            font-weight: 400;
+            color: #777;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .modal-option {
+            flex: 1;
+            min-width: 80px;
+            padding: 12px;
+            background: #111;
+            border: 1px solid #222;
+            color: #555;
+            border-radius: 0;
+            font-family: 'DM Mono', monospace;
+            font-size: 14px;
+            font-weight: 400;
+            cursor: pointer;
+            transition: all 0.15s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .modal-option.selected {
+            background: #fff;
+            border-color: #fff;
+            color: #000;
+        }
+
+        .modal-option:active {
+            opacity: 0.7;
+        }
+
+        .modal-close-btn {
+            width: 100%;
+            padding: 14px;
+            background: #fff;
+            border: none;
+            color: #000;
+            border-radius: 0;
+            margin-top: 24px;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .modal-close-btn:active {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // ── ALL timers use milliseconds internally ──
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function formatTimeMs(ms) {
+            const total = Math.max(0, ms) / 1000;
+            const mins = Math.floor(total / 60);
+            const secs = Math.floor(total % 60);
+            const hundredths = Math.floor((total * 100) % 100);
+            return `${mins}:${secs.toString().padStart(2, '0')}.${hundredths.toString().padStart(2, '0')}`;
+        }
+
+        function formatCountdown(ms) {
+            const total = Math.max(0, ms) / 1000;
+            const secs = Math.floor(total % 60);
+            const hundredths = Math.floor((total * 100) % 100);
+            return `${secs.toString().padStart(2, '0')}.${hundredths.toString().padStart(2, '0')}`;
+        }
+
+        function getThreshold15(ms) {
+            return Math.floor(ms / 1000 / 15) * 15;
+        }
+
+        function getThreshold10(ms) {
+            return Math.floor(ms / 1000 / 10) * 10;
+        }
+
+        function getThreshold5(ms) {
+            return Math.floor(ms / 1000 / 5) * 5;
+        }
+
+        function buildShareText(seconds) {
+            const now = new Date();
+            const dd = String(now.getDate()).padStart(2, '0');
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const yy = String(now.getFullYear()).slice(2);
+            const dateStr = `${dd}.${mm}.${yy}`;
+
+            const greenCount = Math.floor(seconds / 5);
+            const nextThirty = Math.ceil(Math.max(seconds, 1) / 30) * 30;
+            const totalSquares = nextThirty / 5;
+
+            const squareArr = Array.from({ length: totalSquares }, (_, i) => i < greenCount ? '🟩' : '⬜');
+            const rows = [];
+            for (let i = 0; i < squareArr.length; i += 6) {
+                rows.push(squareArr.slice(i, i + 6).join(''));
+            }
+
+            return `💀hang ${dateStr}\n${formatTime(seconds)}\n${rows.join('\n')}`;
+        }
+
+        function App() {
+            const [screen, setScreen] = useState('start');
+            const [countdownDuration, setCountdownDuration] = useState(5);
+            const [showSettings, setShowSettings] = useState(false);
+
+            const [countdownMs, setCountdownMs] = useState(0);
+            const [hangMs, setHangMs] = useState(0);
+            const [resultSeconds, setResultSeconds] = useState(0);
+            const [resultOptions, setResultOptions] = useState([]);
+            const [stoppedHangMs, setStoppedHangMs] = useState(0);
+            const [copied, setCopied] = useState(false);
+
+            const timerRef = useRef(null);
+            const startTimeRef = useRef(null);
+
+            useEffect(() => {
+                const savedCountdown = localStorage.getItem('deadhang-countdown-duration');
+                if (savedCountdown) setCountdownDuration(parseInt(savedCountdown));
+            }, []);
+
+            // Countdown
+            useEffect(() => {
+                if (screen !== 'countdown') return;
+                const durationMs = countdownDuration * 1000;
+                startTimeRef.current = Date.now();
+                setCountdownMs(durationMs);
+                timerRef.current = setInterval(() => {
+                    const remaining = durationMs - (Date.now() - startTimeRef.current);
+                    if (remaining <= 0) {
+                        clearInterval(timerRef.current);
+                        setCountdownMs(0);
+                        setHangMs(0);
+                        setScreen('hang');
+                    } else {
+                        setCountdownMs(remaining);
+                    }
+                }, 10);
+                return () => clearInterval(timerRef.current);
+            }, [screen, countdownDuration]);
+
+            // Hang
+            useEffect(() => {
+                if (screen !== 'hang') return;
+                startTimeRef.current = Date.now();
+                timerRef.current = setInterval(() => {
+                    setHangMs(Date.now() - startTimeRef.current);
+                }, 10);
+                return () => clearInterval(timerRef.current);
+            }, [screen]);
+
+
+            function handleStartHang() {
+                setHangMs(0);
+                setScreen('countdown');
+            }
+
+            function handleAbort() {
+                clearInterval(timerRef.current);
+                setScreen('start');
+            }
+
+            function handleStopHang() {
+                clearInterval(timerRef.current);
+                const frozenMs = Date.now() - startTimeRef.current;
+                setStoppedHangMs(frozenMs);
+                const t5 = getThreshold5(frozenMs);
+                const t10 = getThreshold10(frozenMs);
+                const opts = [...new Set([t10, t5])].sort((a, b) => b - a).filter(t => t > 0);
+                setResultOptions(opts.length ? opts : [t5]);
+                setCopied(false);
+                setScreen('result');
+            }
+
+            function handlePickResult(seconds) {
+                setResultSeconds(seconds);
+                setScreen('share');
+            }
+
+            function handleCopyResult() {
+                const text = buildShareText(resultSeconds);
+                navigator.clipboard.writeText(text).then(() => {
+                    setCopied(true);
+                    setTimeout(() => {
+                        setScreen('start');
+                        setCopied(false);
+                    }, 800);
+                });
+            }
+
+            function handleChangeCountdown(duration) {
+                setCountdownDuration(duration);
+                localStorage.setItem('deadhang-countdown-duration', duration.toString());
+                setShowSettings(false);
+            }
+
+            const lastThreshold = getThreshold15(hangMs);
+            const progressPct = ((hangMs - lastThreshold * 1000) / (15 * 1000)) * 100;
+
+            return (
+                <div className="app-container">
+                    <div className="top-bar">
+                        <div className="top-bar-spacer" />
+                        <div className="top-bar-title">HANG LOOSE</div>
+                        <button className="top-bar-settings" onClick={() => setShowSettings(true)}>⚙️</button>
+                    </div>
+
+                    <div className="content">
+                        {screen === 'start' && (
+                            <div className="start-screen">
+                                <div className="start-text">Track your dead hang!</div>
+                                <button className="start-btn" onClick={handleStartHang}>Start</button>
+                                {resultSeconds > 0 && (
+                                    <button className="last-result-btn" onClick={() => setScreen('share')}>
+                                        See last result ({formatTime(resultSeconds)})
+                                    </button>
+                                )}
+                            </div>
+                        )}
+
+                        {screen === 'countdown' && (
+                            <div className="countdown-screen">
+                                <div className="countdown-instruction">Get on the bar!</div>
+                                <div className="countdown-number">{formatCountdown(countdownMs)}</div>
+                                <div className="countdown-progress-track">
+                                    <div className="countdown-progress-fill" style={{width: `${(countdownMs / (countdownDuration * 1000)) * 100}%`}} />
+                                </div>
+                                <button className="abort-btn" onClick={handleAbort}>Abort</button>
+                            </div>
+                        )}
+
+                        {screen === 'hang' && (
+                            <div className="hang-screen" onClick={handleStopHang}>
+                                <div className="hang-big-number" style={{visibility: lastThreshold > 0 ? 'visible' : 'hidden'}}>
+                                    {formatTime(Math.max(lastThreshold, 15))}
+                                </div>
+                                <div className="hang-progress-track">
+                                    <div className="hang-progress-fill" style={{width: `${progressPct}%`}} />
+                                </div>
+                                <div className="hang-small-number">{formatTimeMs(hangMs)}</div>
+                                <div className="hang-instruction">Tap anywhere to stop</div>
+                            </div>
+                        )}
+
+                        {screen === 'result' && (
+                            <div className="result-screen">
+                                <div className="result-label">How long did you hang for?</div>
+                                {resultOptions.map((t, i) => (
+                                    <button
+                                        key={t}
+                                        className={`result-option ${i === 0 ? 'result-option-primary' : 'result-option-secondary'}`}
+                                        onClick={() => handlePickResult(t)}
+                                    >
+                                        {formatTime(t)}
+                                    </button>
+                                ))}
+                                <div className="result-exact">{formatTimeMs(stoppedHangMs)}</div>
+                            </div>
+                        )}
+
+                        {screen === 'share' && (
+                            <div className="share-screen" onClick={handleCopyResult}>
+                                <div className="share-preview-box">
+                                    <div className="share-preview">{buildShareText(resultSeconds)}</div>
+                                </div>
+                                <div className={`share-hint ${copied ? 'copied' : ''}`}>
+                                    {copied ? 'Copied!' : 'Tap to copy & restart'}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {showSettings && (
+                        <div className="modal-overlay" onClick={() => setShowSettings(false)}>
+                            <div className="modal" onClick={(e) => e.stopPropagation()}>
+                                <div className="modal-title">Settings</div>
+                                <div className="modal-group">
+                                    <label className="modal-label">Countdown Duration</label>
+                                    <div className="modal-buttons">
+                                        {[3, 5, 10].map(duration => (
+                                            <button
+                                                key={duration}
+                                                className={`modal-option ${countdownDuration === duration ? 'selected' : ''}`}
+                                                onClick={() => handleChangeCountdown(duration)}
+                                            >
+                                                {duration}s
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <button className="modal-close-btn" onClick={() => setShowSettings(false)}>Done</button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
