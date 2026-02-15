@@ -442,6 +442,14 @@
             opacity: 0.7;
         }
 
+        .modal-info-text {
+            font-size: 15px;
+            font-weight: 400;
+            color: #999;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
         .modal-close-btn {
             width: 100%;
             padding: 14px;
@@ -534,6 +542,7 @@
             const [screen, setScreen] = useState('start');
             const [countdownDuration, setCountdownDuration] = useState(5);
             const [showSettings, setShowSettings] = useState(false);
+            const [showInfo, setShowInfo] = useState(false);
 
             const [countdownMs, setCountdownMs] = useState(0);
             const [hangMs, setHangMs] = useState(0);
@@ -632,7 +641,7 @@
                 <div className="app-container">
                     <div className="top-bar">
                         <div className="top-bar-spacer" />
-                        <div className="top-bar-title">HANG LOOSE</div>
+                        <div className="top-bar-title" onClick={() => setShowInfo(true)} style={{cursor:'pointer'}}>HANG LOOSE</div>
                         <button className="top-bar-settings" onClick={() => setShowSettings(true)}>⚙️</button>
                     </div>
 
@@ -700,6 +709,16 @@
                             </div>
                         )}
                     </div>
+
+                    {showInfo && (
+                        <div className="modal-overlay" onClick={() => setShowInfo(false)}>
+                            <div className="modal" onClick={(e) => e.stopPropagation()}>
+                                <div className="modal-title">About</div>
+                                <p className="modal-info-text">I made this app to track my dead hang times when I'm on my own. It's optimized for mobile view only.</p>
+                                <button className="modal-close-btn" onClick={() => setShowInfo(false)}>Close</button>
+                            </div>
+                        </div>
+                    )}
 
                     {showSettings && (
                         <div className="modal-overlay" onClick={() => setShowSettings(false)}>
