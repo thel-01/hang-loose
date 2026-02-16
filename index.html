@@ -197,19 +197,21 @@
         }
 
         .countdown-progress-track {
-            width: 100%;
+            position: relative;
+            align-self: stretch;
             height: 36px;
             background: rgba(0,0,0,0.3);
-            border-radius: 0;
             overflow: hidden;
+            flex-shrink: 0;
         }
 
         .countdown-progress-fill {
-            height: 100%;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
             background: #fff;
-            border-radius: 0;
-            transition: width 0.05s linear;
-            margin: 0 auto;
         }
 
         /* HANG SCREEN */
@@ -245,18 +247,20 @@
         }
 
         .hang-progress-track {
-            width: 100%;
+            position: relative;
+            align-self: stretch;
             height: 36px;
             background: #333;
-            border-radius: 0;
             overflow: hidden;
+            flex-shrink: 0;
         }
 
         .hang-progress-fill {
-            height: 100%;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
             background: #FFC107;
-            border-radius: 0;
-            transition: width 0.05s linear;
         }
 
         .hang-instruction {
@@ -331,25 +335,48 @@
             justify-content: center;
             width: 100%;
             height: 100%;
-            cursor: pointer;
             padding: 20px;
             gap: 20px;
         }
 
-        .share-screen:active {
-            opacity: 0.85;
+        .share-label {
+            font-size: 18px;
+            font-weight: 500;
+            color: #999;
+            letter-spacing: 0.5px;
         }
 
         .share-preview-box {
             background: #111;
-            border: 1px solid #333;
+            border: 2px solid #333;
             padding: 24px 28px;
             width: 100%;
+            cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
         }
+
+        .share-preview-box:active {
+            transform: scale(0.98);
+        }
+
+        .share-preview-box.copied {
+            background: #0a2e0a;
+            border-color: #4CAF50;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3), inset 0 0 30px rgba(76, 175, 80, 0.05);
+            animation: copyPulse 0.25s ease-out;
+        }
+
+        @keyframes copyPulse {
+            0% { transform: scale(1); }
+            30% { transform: scale(1.02); }
+            60% { transform: scale(0.99); }
+            100% { transform: scale(1); }
+        }
+
 
         .share-preview {
             font-size: 5.5vw;
-            font-family: 'DM Mono', monospace;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             color: #fff;
             white-space: pre;
             line-height: 1.6;
@@ -357,13 +384,17 @@
         }
 
         .share-hint {
-            font-size: 13px;
+            font-size: 14px;
+            font-weight: 500;
             color: #777;
             letter-spacing: 0.5px;
+            line-height: 1;
+            min-height: 14px;
+            transition: color 0.1s ease;
         }
 
         .share-hint.copied {
-            color: #fff;
+            color: #4CAF50;
         }
 
         /* SETTINGS MODAL */
@@ -607,9 +638,9 @@
                 const frozenMs = Date.now() - startTimeRef.current;
                 setStoppedHangMs(frozenMs);
                 const t5 = getThreshold5(frozenMs);
-                const t10 = getThreshold10(frozenMs);
-                const opts = [...new Set([t10, t5])].sort((a, b) => b - a).filter(t => t > 0);
-                setResultOptions(opts.length ? opts : [t5]);
+                const lower = t5 - 5;
+                const opts = lower > 0 ? [t5, lower] : (t5 > 0 ? [t5] : [0]);
+                setResultOptions(opts);
                 setCopied(false);
                 setScreen('result');
             }
@@ -621,13 +652,27 @@
 
             function handleCopyResult() {
                 const text = buildShareText(resultSeconds);
-                navigator.clipboard.writeText(text).then(() => {
-                    setCopied(true);
-                    setTimeout(() => {
-                        setScreen('start');
-                        setCopied(false);
-                    }, 800);
-                });
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        setCopied(true);
+                    }).catch(() => {
+                        fallbackCopy(text);
+                    });
+                } else {
+                    fallbackCopy(text);
+                }
+            }
+
+            function fallbackCopy(text) {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.left = '-9999px';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                setCopied(true);
             }
 
             function handleChangeCountdown(duration) {
@@ -662,7 +707,7 @@
 
                         {screen === 'countdown' && (
                             <div className="countdown-screen">
-                                <div className="countdown-instruction">Get on the bar!</div>
+                                <div className="countdown-instruction">Timer starts in...</div>
                                 <div className="countdown-number">{formatCountdown(countdownMs)}</div>
                                 <div className="countdown-progress-track">
                                     <div className="countdown-progress-fill" style={{width: `${(countdownMs / (countdownDuration * 1000)) * 100}%`}} />
@@ -686,7 +731,7 @@
 
                         {screen === 'result' && (
                             <div className="result-screen">
-                                <div className="result-label">How long did you hang for?</div>
+                                <div className="result-label">Round down to...</div>
                                 {resultOptions.map((t, i) => (
                                     <button
                                         key={t}
@@ -701,13 +746,15 @@
                         )}
 
                         {screen === 'share' && (
-                            <div className="share-screen" onClick={handleCopyResult}>
-                                <div className="share-preview-box">
+                            <div className="share-screen">
+                                <div className="share-label">Share your time</div>
+                                <div className={`share-preview-box ${copied ? 'copied' : ''}`} onClick={handleCopyResult}>
                                     <div className="share-preview">{buildShareText(resultSeconds)}</div>
                                 </div>
                                 <div className={`share-hint ${copied ? 'copied' : ''}`}>
-                                    {copied ? 'Copied!' : 'Tap to copy & restart'}
+                                    {copied ? 'Copied to clipboard' : 'Tap to copy'}
                                 </div>
+                                <button className="start-btn" onClick={() => { setCopied(false); setScreen('start'); }}>Restart</button>
                             </div>
                         )}
                     </div>
