@@ -625,7 +625,11 @@
 
             function handleStartHang() {
                 setHangMs(0);
-                setScreen('countdown');
+                if (countdownDuration === 0) {
+                    setScreen('hang');
+                } else {
+                    setScreen('countdown');
+                }
             }
 
             function handleAbort() {
@@ -678,7 +682,6 @@
             function handleChangeCountdown(duration) {
                 setCountdownDuration(duration);
                 localStorage.setItem('deadhang-countdown-duration', duration.toString());
-                setShowSettings(false);
             }
 
             const lastThreshold = getThreshold15(hangMs);
@@ -785,6 +788,14 @@
                                                 {duration}s
                                             </button>
                                         ))}
+                                    </div>
+                                    <div className="modal-buttons" style={{marginTop: '12px', borderTop: '1px solid #333', paddingTop: '12px'}}>
+                                        <button
+                                            className={`modal-option ${countdownDuration === 0 ? 'selected' : ''}`}
+                                            onClick={() => handleChangeCountdown(0)}
+                                        >
+                                            Manual start
+                                        </button>
                                     </div>
                                 </div>
                                 <button className="modal-close-btn" onClick={() => setShowSettings(false)}>Done</button>
