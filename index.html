@@ -574,7 +574,7 @@
                 rows.push(squareArr.slice(i, i + 6).join(''));
             }
 
-            return `💀hang ${dateStr}\n${formatTime(seconds)}\n${rows.join('\n')}\nTimed using HangLoose thel-01.github.io/hang-loose`;
+            return `${dateStr}\n⏱️${formatTime(seconds)}\n${rows.join('\n')}`;
         }
 
         function App() {
@@ -661,7 +661,7 @@
             }
 
             function handleCopyResult() {
-                const text = buildShareText(resultSeconds);
+                const text = buildShareText(resultSeconds) + '\nTimed using HangLoose thel-01.github.io/hang-loose';
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(text).then(() => {
                         setCopied(true);
