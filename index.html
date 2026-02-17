@@ -346,6 +346,12 @@
             letter-spacing: 0.5px;
         }
 
+        .share-explanation {
+            font-size: 13px;
+            color: #666;
+            margin-top: -4px;
+        }
+
         .share-preview-box {
             background: #111;
             border: 2px solid #333;
@@ -568,7 +574,7 @@
                 rows.push(squareArr.slice(i, i + 6).join(''));
             }
 
-            return `💀hang ${dateStr}\n${formatTime(seconds)}\n${rows.join('\n')}`;
+            return `💀hang ${dateStr}\n${formatTime(seconds)}\n${rows.join('\n')}\nTimed using HangLoose thel-01.github.io/hang-loose`;
         }
 
         function App() {
@@ -751,6 +757,7 @@
                         {screen === 'share' && (
                             <div className="share-screen">
                                 <div className="share-label">Share your time</div>
+                                <div className="share-explanation">Each 🟩 = 5 seconds, each line = 30 seconds</div>
                                 <div className={`share-preview-box ${copied ? 'copied' : ''}`} onClick={handleCopyResult}>
                                     <div className="share-preview">{buildShareText(resultSeconds)}</div>
                                 </div>
