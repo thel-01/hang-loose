@@ -107,13 +107,22 @@
             letter-spacing: 1px;
         }
 
+        .start-subtext {
+            font-size: 12px;
+            font-weight: 400;
+            color: #666;
+            letter-spacing: 1px;
+            text-transform: none;
+            margin-top: 8px;
+        }
+
         .start-btn {
-            padding: 20px 60px;
+            padding: 28px 80px;
             background: #fff;
             border: none;
             color: #000;
             font-family: 'Inter', sans-serif;
-            font-size: 18px;
+            font-size: 22px;
             font-weight: 700;
             letter-spacing: 3px;
             text-transform: uppercase;
@@ -122,7 +131,7 @@
             transition: opacity 0.15s;
             -webkit-appearance: none;
             appearance: none;
-            min-width: 200px;
+            min-width: 240px;
         }
 
         .start-btn:active {
@@ -130,21 +139,21 @@
         }
 
         .last-result-btn {
-            background: none;
+            background: #333;
             border: none;
-            color: #777;
+            color: #ccc;
             font-family: 'Inter', sans-serif;
-            font-size: 13px;
-            font-weight: 400;
-            letter-spacing: 0.5px;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 1px;
             cursor: pointer;
-            padding: 8px;
+            padding: 10px 24px;
             -webkit-appearance: none;
             appearance: none;
         }
 
         .last-result-btn:active {
-            color: #aaa;
+            opacity: 0.8;
         }
 
         /* COUNTDOWN SCREEN */
@@ -266,7 +275,7 @@
         .hang-instruction {
             font-size: 15px;
             font-weight: 400;
-            color: #555;
+            color: #888;
             letter-spacing: 0.5px;
         }
 
@@ -347,8 +356,8 @@
         }
 
         .share-explanation {
-            font-size: 13px;
-            color: #666;
+            font-size: 14px;
+            color: #888;
             margin-top: -4px;
         }
 
@@ -580,6 +589,7 @@
         function App() {
             const [screen, setScreen] = useState('start');
             const [countdownDuration, setCountdownDuration] = useState(5);
+            const [thresholdInterval, setThresholdInterval] = useState(15);
             const [showSettings, setShowSettings] = useState(false);
             const [showInfo, setShowInfo] = useState(false);
 
@@ -596,6 +606,8 @@
             useEffect(() => {
                 const savedCountdown = localStorage.getItem('deadhang-countdown-duration');
                 if (savedCountdown) setCountdownDuration(parseInt(savedCountdown));
+                const savedThreshold = localStorage.getItem('deadhang-threshold-interval');
+                if (savedThreshold) setThresholdInterval(parseInt(savedThreshold));
             }, []);
 
             // Countdown
@@ -647,9 +659,9 @@
                 clearInterval(timerRef.current);
                 const frozenMs = Date.now() - startTimeRef.current;
                 setStoppedHangMs(frozenMs);
-                const t5 = getThreshold5(frozenMs);
-                const lower = t5 - 5;
-                const opts = lower > 0 ? [t5, lower] : (t5 > 0 ? [t5] : [0]);
+                const t = getThreshold5(frozenMs);
+                const lower = t - 5;
+                const opts = lower > 0 ? [t, lower] : (t > 0 ? [t] : [0]);
                 setResultOptions(opts);
                 setCopied(false);
                 setScreen('result');
@@ -690,8 +702,13 @@
                 localStorage.setItem('deadhang-countdown-duration', duration.toString());
             }
 
-            const lastThreshold = getThreshold15(hangMs);
-            const progressPct = ((hangMs - lastThreshold * 1000) / (15 * 1000)) * 100;
+            function handleChangeThreshold(interval) {
+                setThresholdInterval(interval);
+                localStorage.setItem('deadhang-threshold-interval', interval.toString());
+            }
+
+            const lastThreshold = Math.floor(hangMs / 1000 / thresholdInterval) * thresholdInterval;
+            const progressPct = ((hangMs - lastThreshold * 1000) / (thresholdInterval * 1000)) * 100;
 
             return (
                 <div className="app-container">
@@ -705,10 +722,13 @@
                         {screen === 'start' && (
                             <div className="start-screen">
                                 <div className="start-text">Track your dead hang!</div>
-                                <button className="start-btn" onClick={handleStartHang}>Start</button>
+                                <button className="start-btn" onClick={handleStartHang}>
+                                    Start
+                                    <div className="start-subtext">{countdownDuration > 0 ? `Timer starts after ${countdownDuration}s` : 'Timer starts immediately'}</div>
+                                </button>
                                 {resultSeconds > 0 && (
                                     <button className="last-result-btn" onClick={() => setScreen('share')}>
-                                        See last result ({formatTime(resultSeconds)})
+                                        Last: {formatTime(resultSeconds)}
                                     </button>
                                 )}
                             </div>
@@ -728,7 +748,7 @@
                         {screen === 'hang' && (
                             <div className="hang-screen" onClick={handleStopHang}>
                                 <div className="hang-big-number" style={{visibility: lastThreshold > 0 ? 'visible' : 'hidden'}}>
-                                    {formatTime(Math.max(lastThreshold, 15))}
+                                    {formatTime(Math.max(lastThreshold, thresholdInterval))}
                                 </div>
                                 <div className="hang-progress-track">
                                     <div className="hang-progress-fill" style={{width: `${progressPct}%`}} />
@@ -803,6 +823,20 @@
                                         >
                                             Manual start
                                         </button>
+                                    </div>
+                                </div>
+                                <div className="modal-group">
+                                    <label className="modal-label">Threshold Interval</label>
+                                    <div className="modal-buttons">
+                                        {[5, 10, 15, 30].map(interval => (
+                                            <button
+                                                key={interval}
+                                                className={`modal-option ${thresholdInterval === interval ? 'selected' : ''}`}
+                                                onClick={() => handleChangeThreshold(interval)}
+                                            >
+                                                {interval}s
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
                                 <button className="modal-close-btn" onClick={() => setShowSettings(false)}>Done</button>
